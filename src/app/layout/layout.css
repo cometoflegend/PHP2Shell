@@ -1,0 +1,78 @@
+:host {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    align-self: stretch;
+}
+
+.container {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
+
+    display: flex;
+    flex-direction: column;
+
+    box-sizing: border-box;
+    color: #302a25;
+    background: #eee4c7;
+    border: 3px solid #6b4a2d;
+
+    overflow: hidden;
+}
+
+.container-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 24px 24px 0;
+    box-sizing: border-box;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #58738a #d2bd91;
+}
+
+.header {
+    flex: 0 0 auto;
+    padding: 10px 18px;
+    color: #fff8e1;
+    background: #3d5365;
+    text-align: center;
+    border-bottom: 3px solid #c49a5a;
+}
+
+.header h1 {
+    margin: 5px 0;
+    font-size: 1.5rem;
+}
+
+.header p {
+    margin: 5px 0;
+}
+
+.container-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.container-body::-webkit-scrollbar-track {
+    background: #d2bd91;
+}
+
+.container-body::-webkit-scrollbar-thumb {
+    background: #58738a;
+    border: 1px solid #3d5365;
+}
+
+.container-body::-webkit-scrollbar-thumb:hover {
+    background: #3d5365;
+}

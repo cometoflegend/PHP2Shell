@@ -1,0 +1,140 @@
+<div class="main-container">
+  <app-sidebar></app-sidebar>
+
+  <app-layout>
+    <section class="page-content">
+      <div class="divider" id="inicio">
+        <h1>PHP2Shell: Todo lo que necesitas saber</h1>
+      </div>
+      <p>El 20 de octubre de 2026, un usuario anónimo filtró que el 22 de octubre serían revelados dos errores críticos
+        de ejecución de código en remoto de PHP, CVE-2026-109618 y CVE-2026-109619.</p>
+
+      <p>El post fue eliminado con rapidez, pero no sin antes haberse tomado capturas de pantalla por la comunidad,
+        junto a una alegación de que los errores estaban presentes desde el lanzamiento de PHP 5 en 2004.</p>
+
+      <p>La existencia de estos errores, conocidos conjuntamente como PHP2Shell, era conocida internamente desde 2024.
+        Sin embargo, los bugs no fueron arreglados de aquella porque no había conocimiento de ningún método para
+        explotarlos, y porque el equipo no estaba de acuerdo en cómo arreglarlos.</p>
+
+      <div class="divider" id="descubrimiento">
+        <h1>Descubrimiento público de PHP2Shell</h1>
+      </div>
+
+      <p>A nivel público, PHP2Shell fue descubierto por dos entidades de forma independiente: Calif (atribuido a Ryan
+        Austin) y Wiz. La asistencia de la IA fue clave para este descubrimiento, pues ambas empresas usaron GPT-5.6 Sol
+        para asistir con la investigación. Wiz además usó Gemini 4 Argon y su propio sistema, Wiz Atlas.</p>
+
+      <div class="divider" id="severidad">
+        <h1>Severidad y explicación</h1>
+      </div>
+
+      <p>PHP2Shell ha sido calificado con un 9,2/10 en la escala de CVSS. Las cifras iguales o superiores a 9 en esta
+        escala corresponden a errores críticos. Si un hacker entra al sistema y aprovecha una vulnerabilidad de esta
+        escala, puede crashearlo, tomar control y robar, eliminar o alterar datos con facilidad.</p>
+
+      <div class="divider" id="109618">
+        <h2>CVE-2026-109618</h2>
+      </div>
+
+      <p>PHP utiliza la función `longjmp()` para los errores de falta de memoria (OOM), con el fin de salir del contexto
+        actual y abortar la gestión de la solicitud.</p>
+
+      <p>Al limpiar los datos de solicitudes realizadas en el momento en el que se queda OOM, puede tratarlos como si
+        fueran válidos.</p>
+
+      <p>La estructura del error es la siguiente:</p>
+      <ol>
+        <li>PHP reserva memoria para los datos de una petición.</li>
+        <li>PHP se queda sin memoria y la inicialización se interrumpe antes de terminar.</li>
+        <li>Al ejecutarse la limpieza de la petición, PHP supone que los datos están preparados y son válidos, aunque no
+          sea el caso.</li>
+      </ol>
+
+      <p>Este error puede llevar a la ejecución de código remoto en las circunstancias adecuadas.</p>
+
+      <div class="divider" id="109619">
+        <h2>CVE-2026-109619</h2>
+      </div>
+
+      <p>PHP puede utilizar procesos que atienden varias peticiones consecutivas. Parte del estado interno se conserva
+        en variables globales o estructuras del proceso, aunque los datos de cada petición deberían desaparecer al
+        terminar esta.</p>
+
+      <p>La secuencia es la siguiente:</p>
+      <ol>
+        <li>PHP reserva memoria en una dirección concreta y guarda una referencia a ella.</li>
+        <li>PHP libera esa memoria, pero olvida borrar una referencia interna que apunta a esa referencia.</li>
+        <li>El mismo proceso vuelve a utilizar la referencia antigua antes de inicializar correctamente su estado.</li>
+      </ol>
+
+      <p>Este bug puede llevar a lecturas de memoria incorrectas, corrupción de memoria y ejecución remota de código.
+      </p>
+
+      <div class="divider" id="versiones">
+        <h1>Versiones afectadas</h1>
+      </div>
+
+      <p>Toda versión de PHP entre 5.2 (lanzada en 2012) y 8.5 se ha visto afectada por PHP2Shell.</p>
+
+      <p>PHP ha lanzado los siguientes parches: 8.2.35, 8.3.36, 8.4.27, y 8.5.12. También existen parches del código
+        fuente de otras versiones anteriores.</p>
+
+      <div class="divider" id="soluciones">
+        <h1>Soluciones</h1>
+      </div>
+
+      <p>La única solución a PHP2Shell es actualizar PHP. Una vez se actualice, es conveniente reiniciar los procesos
+        para asegurar que procesos anteriores atiendan a peticiones. Si no se puede actualizar de forma inmediata, se
+        puede restringir el acceso público o interrumpir el servicio temporalmente.</p>
+
+      <p>Una vez se actualice PHP, conviene investigar procesos, registros, archivos y credenciales, en caso de que
+        alguien haya accedido al sitio. También conviene activar un cortafuegos, ya que puede ayudar a detectar o
+        bloquear peticiones maliciosas a futuro.</p>
+
+      <div class="divider" id="twinteach">
+        <h1>Protección en TwinTeach</h1>
+      </div>
+
+      <p>TwinTeach usa Angular en el front y Laravel en el backend. Para comprobar que el sitio está protegido, se deben
+        seguir estos pasos:</p>
+      <ol>
+        <li><b>Identificar dónde se ejecuta PHP</b> (server Linux con Apache, PaaS, Kubernetes, etc).</li>
+        <li><b>Consultar la versión de PHP.</b> Esto se puede comprobar ejecutando <kbd>php -v</kbd>.</li>
+        <li><b>Comparar la versión.</b> Las versiones protegidas son 8.2.35, 8.3.36, 8.4.27, y 8.5.12 (o superiores).
+        </li>
+        <li><b>Actualizar y reiniciar los servicios.</b></li>
+        <li><b>Revisar Laravel.</b> Ejecutar:
+          <ul><kbd>
+              <li>php artisan --version</li>
+              <li>composer check-platform-reqs</li>
+              <li>composer audit</li>
+            </kbd></ul>
+        </li>
+        <li><b>Revisar Angular</b> ejecutando <kbd>npm audit</kbd> en el frontend.</li>
+        <li><b>Comprobar sesiones y cargas de archivos</b> revisando <kbd>session.upload_progress.enabled</kbd>,
+          <kbd>session.upload_progress.name</kbd>, <kbd>session.serialize_handler</kbd>, etc.
+        </li>
+        <li><b>Verificar que el despliegue está corregido.</b> Se debe confirmar la versión efectiva en todos los nodos
+          y contenedores, que no quedan réplicas antiguas detrás del balanceador, verificar el funcionamiento de Laravel
+          y revisar registros.</li>
+      </ol>
+
+      <div class="divider" id="check">
+        <h1>Comprobación</h1>
+      </div>
+
+      <p>No existe un registro único para comprobar que se ha aprovechado la vulnerabilidad, con lo cual conviene
+        comprobar varias cosas:</p>
+      <ul>
+        <li>Investigar registros desde el 17 de octubre, fecha del intento de hackeo más antiguo identificado por
+          Amazon.</li>
+        <li>Revisar peticiones POST inusuales, solicitudes con el campo PHP_SESSION_UPLOAD_PROGRESS y peticiones que
+          producen errores de memoria.</li>
+        <li>Revisar la ejecución de procesos sh, bash, curl y wget.</li>
+        <li>Buscar modificaciones de archivos ocultos, nuevos ejecutables, configuración y demás.</li>
+        <li>Investigar accesos a datos y credenciales de usuario.</li>
+      </ul>
+
+    </section>
+  </app-layout>
+</div>
